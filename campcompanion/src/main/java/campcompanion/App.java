@@ -1,4 +1,4 @@
-package campcompanion.server;
+package campcompanion;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,7 +8,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-public class EmbeddedServer {
+public class App {
 	
     public static void main(String[] args) {
 
@@ -27,7 +27,7 @@ public class EmbeddedServer {
             server.start();
             server.join();
         } catch (Exception ex) {
-            Logger.getLogger(EmbeddedServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             server.destroy();
         }
