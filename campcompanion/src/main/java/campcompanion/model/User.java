@@ -1,8 +1,18 @@
 package campcompanion.model;
 
 import java.util.List;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "appuser")
@@ -10,7 +20,7 @@ public class User {
 
 	// ATTRIBUTES
 	@Id
-	@Column(name = "id")
+	@Column(name = "user_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 		
@@ -20,8 +30,13 @@ public class User {
 	@Column(name = "password", length = 255, nullable = false)
 	private String password;
 	
-	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "spot")
-	//private List<Spot> favoritesSpot;
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+        name = "favorite_spot", 
+        joinColumns = { @JoinColumn(name = "spot_id") }, 
+        inverseJoinColumns = { @JoinColumn(name = "user_id") }
+    )
+	private Set<Spot> favoriteSpots;
 	
 	// CONSTRUCTOR
 	public User() {
@@ -53,13 +68,13 @@ public class User {
 		this.password = password;
 	}
 
-//	public List<Spot> getFavoritesSpot() {
-//		return favoritesSpot;
-//	}
+	public Set<Spot> getFavoriteSpots() {
+		return favoriteSpots;
+	}
 
-//	public void setFavoritesSpot(List<Spot> favoritesSpot) {
-//		this.favoritesSpot = favoritesSpot;
-//	}
+	public void setFavoriteSpots(Set<Spot> favoriteSpots) {
+		this.favoriteSpots = favoriteSpots;
+	}
 
 	// METHODS
 

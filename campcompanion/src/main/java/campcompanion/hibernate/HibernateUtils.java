@@ -11,6 +11,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
+import campcompanion.model.Log;
+import campcompanion.model.Spot;
 import campcompanion.model.User;
 
 public class HibernateUtils {
@@ -43,6 +45,8 @@ public class HibernateUtils {
 
 			configuration.setProperties(settings);
 			configuration.addAnnotatedClass(User.class);
+			configuration.addAnnotatedClass(Spot.class);
+			configuration.addAnnotatedClass(Log.class);
 
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 					.applySettings(configuration.getProperties()).build();
