@@ -1,7 +1,5 @@
 package campcompanion.model;
 
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,6 +30,14 @@ public class Log {
 	private Spot relatedSpot;
 
 	// GETTERS AND SETTERS
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public String getComment() {
 		return comment;
 	}

@@ -1,6 +1,5 @@
 package campcompanion.model;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -55,6 +54,14 @@ public class Spot {
 
 	
 	//GETTERS AND SETTERS
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -125,6 +132,14 @@ public class Spot {
 
 	public void setLogs(Set<Log> logs) {
 		this.logs = logs;
+	}
+
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
 	}
 	
 	//METHODS
