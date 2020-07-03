@@ -10,8 +10,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -201,5 +203,49 @@ public class SpotResource {
 			session.close();
 		}
     }
+    
+	/********************************
+	 * 
+	 * 	OTHER R E Q U E S T S
+	 * 
+	 ********************************/
+    @GET
+    @Path("/list")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response query(@Context UriInfo query) {
+    	ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        
+		Session session = HibernateUtils.getSessionFactory().openSession();
+		Transaction tx = null;
+		
+		String latitude = query.getQueryParameters().getFirst("latitude");
+		String longitude = query.getQueryParameters().getFirst("longitude");
+		try {
+			tx = session.beginTransaction();
+			String hql = "SELECT *, haversine(:userLat,:userLong,Spot.latitude,Spot.longitude) AS distance FROM Spot ORDER BY distance ASC";
+			@SuppressWarnings("rawtypes")
+			List spots = session.createNativeQuery(hql,Spot.class)
+					.setParameter("userLat",Float.parseFloat(latitude))
+					.setParameter("userLong",Float.parseFloat(longitude))
+					.list();
+			
+			tx.commit();
+			
+			String arrayToJson = objectMapper.writeValueAsString(spots);
+			return Response.status(200).entity(arrayToJson).build();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			e.printStackTrace();
+			return Response.serverError().build();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.serverError().build();
+		} finally {
+			session.close();
+		}
+    }
+    
 
 }
