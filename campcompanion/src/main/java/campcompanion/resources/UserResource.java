@@ -10,8 +10,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -21,11 +23,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import campcompanion.authentication.Role;
+import campcompanion.authentication.Secured;
 import campcompanion.hibernate.HibernateUtils;
 import campcompanion.model.User;
 
 @Path("user")
+@Secured({Role.USER})
 public class UserResource {
+	
+	@Context
+	SecurityContext securityContext;
 	
 	/********************************
 	 * 
@@ -47,6 +55,7 @@ public class UserResource {
 		try {
 			tx = session.beginTransaction();
 			User userAdd = objectMapper.readValue(user , User.class);
+			userAdd.setRole(Role.USER);
 			session.save(userAdd);
 			tx.commit();
 
@@ -146,9 +155,9 @@ public class UserResource {
 			if(user != null) {
 				User userMod = objectMapper.readValue(userInfo , User.class);
 				
-				
 				user.setUsername(userMod.getUsername());
 				user.setPassword(userMod.getPassword());
+				user.setToken(userMod.getToken());
 				
 				session.update(user);
 				tx.commit();

@@ -10,8 +10,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -21,11 +23,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import campcompanion.authentication.Role;
+import campcompanion.authentication.Secured;
 import campcompanion.hibernate.HibernateUtils;
 import campcompanion.model.Log;
+import campcompanion.model.Spot;
 
 @Path("log")
+@Secured({Role.USER})
 public class LogResource {
+	
+	@Context
+	SecurityContext securityContext;
 	
 	/********************************
 	 * 

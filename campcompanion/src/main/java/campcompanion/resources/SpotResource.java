@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.hibernate.HibernateException;
@@ -25,11 +26,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import campcompanion.authentication.Role;
+import campcompanion.authentication.Secured;
 import campcompanion.hibernate.HibernateUtils;
 import campcompanion.model.Spot;
 
 @Path("spot")
+@Secured({Role.USER})
 public class SpotResource {
+	
+	@Context
+	SecurityContext securityContext;
 
 	/********************************
 	 * 

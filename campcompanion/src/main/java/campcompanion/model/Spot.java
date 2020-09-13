@@ -51,7 +51,9 @@ public class Spot {
 	
 	@ManyToMany(mappedBy = "favoriteSpots")
 	private Set<User> users;
-
+	
+	//CONSTRUCTOR
+	public Spot() {}
 	
 	//GETTERS AND SETTERS
 	public int getId() {

@@ -2,12 +2,15 @@ package campcompanion.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Entity
 @Table(name = "log")
@@ -25,9 +28,12 @@ public class Log {
 	@Column(name = "note")
 	private int note;
 	
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Spot.class)
 	@JoinColumn(name="spot_id", nullable=false)
 	private Spot relatedSpot;
+	
+	//CONSTRUCTOR
+	public Log() {}
 
 	// GETTERS AND SETTERS
 	public int getId() {
