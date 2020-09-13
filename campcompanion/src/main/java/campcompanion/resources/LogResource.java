@@ -14,6 +14,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -206,4 +207,57 @@ public class LogResource {
 		}
     }
 	
+	/********************************
+	 * 
+	 * 	OTHER R E Q U E S T S
+	 * 
+	 ********************************/
+    @GET
+    @Path("list/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLogsForSpot(@PathParam("id") String spotId) {
+    	ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        
+		Session session = HibernateUtils.getSessionFactory().openSession();
+		Transaction tx = null;
+		
+		// Check if spot exists
+		tx = session.beginTransaction();
+		Spot spot = (Spot) session.get(Spot.class, Integer.parseInt(spotId));
+		tx.commit();
+
+		if (spot == null) {
+			return Response.status(500).entity("Spot with id " + spotId + " doesn't exist.").build();
+		}
+		
+		//Gather all logs for spot
+		
+		try {
+			tx = session.beginTransaction();
+			
+			String hql =  "SELECT * FROM Log WHERE spot_id = :spotId";
+
+			@SuppressWarnings("rawtypes")
+			List logs = session.createNativeQuery(hql, Log.class)
+					.setParameter("spotId",Integer.parseInt(spotId))
+					.list();
+			
+			tx.commit();
+			
+			String arrayToJson = objectMapper.writeValueAsString(logs);
+			return Response.status(200).entity(arrayToJson).build();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			e.printStackTrace();
+			return Response.serverError().build();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Response.serverError().build();
+		} finally {
+			session.close();
+		}
+    }
 }

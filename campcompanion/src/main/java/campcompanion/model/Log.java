@@ -28,7 +28,7 @@ public class Log {
 	@Column(name = "note")
 	private int note;
 	
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Spot.class)
+	@ManyToOne()
 	@JoinColumn(name="spot_id", nullable=false)
 	private Spot relatedSpot;
 	

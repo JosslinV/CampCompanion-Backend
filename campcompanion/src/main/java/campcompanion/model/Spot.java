@@ -46,9 +46,6 @@ public class Spot {
 	@Column(name = "privacy_note", nullable = false)
 	private int privacyNote;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "relatedSpot")
-	private Set<Log> logs;
-	
 	@ManyToMany(mappedBy = "favoriteSpots")
 	private Set<User> users;
 	
@@ -126,14 +123,6 @@ public class Spot {
 
 	public void setPrivacyNote(int privacyNote) {
 		this.privacyNote = privacyNote;
-	}
-
-	public Set<Log> getLogs() {
-		return logs;
-	}
-
-	public void setLogs(Set<Log> logs) {
-		this.logs = logs;
 	}
 
 	public Set<User> getUsers() {
