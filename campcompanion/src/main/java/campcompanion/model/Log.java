@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "log")
@@ -27,6 +27,10 @@ public class Log {
 	
 	@Column(name = "note")
 	private int note;
+	
+	@ManyToOne()
+	@JoinColumn(name="user_id")
+	private User relatedUser;
 	
 	@ManyToOne()
 	@JoinColumn(name="spot_id", nullable=false)
@@ -68,6 +72,14 @@ public class Log {
 		this.relatedSpot = relatedSpot;
 	}
 
+	public User getRelatedUser() {
+		return relatedUser;
+	}
+
+	public void setRelatedUser(User relatedUser) {
+		this.relatedUser = relatedUser;
+	}
+	
 	// METHODS
 
 }

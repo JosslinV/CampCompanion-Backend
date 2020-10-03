@@ -14,7 +14,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -26,9 +25,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import campcompanion.authentication.Role;
 import campcompanion.authentication.Secured;
+import campcompanion.helper.UserHelper;
 import campcompanion.hibernate.HibernateUtils;
 import campcompanion.model.Log;
 import campcompanion.model.Spot;
+import campcompanion.model.User;
 
 @Path("log")
 @Secured({Role.USER})
@@ -56,8 +57,10 @@ public class LogResource {
 
 		try {
 			tx = session.beginTransaction();
-			Log LogAdd = objectMapper.readValue(log , Log.class);
-			session.save(LogAdd);
+			Log logAdd = objectMapper.readValue(log , Log.class);
+			User relatedUser = UserHelper.getUserByUsername(securityContext.getUserPrincipal().getName());
+			logAdd.setRelatedUser(relatedUser);
+			session.save(logAdd);
 			tx.commit();
 
 			return Response.status(200).entity(log).build();

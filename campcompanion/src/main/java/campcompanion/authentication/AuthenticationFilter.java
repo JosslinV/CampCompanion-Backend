@@ -24,34 +24,7 @@ public class AuthenticationFilter implements ContainerRequestFilter  {
     private static final String AUTHENTICATION_SCHEME = "Bearer";
 
 	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
-		
-		final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
-		requestContext.setSecurityContext(new SecurityContext() {
-
-	        @Override
-	        public Principal getUserPrincipal() {
-	        	//TODO: A retravailler
-	        	User user = null;
-				return () -> user.getUsername() ;
-	        }
-
-		    @Override
-		    public boolean isUserInRole(String role) {
-		        return true;
-		    }
-
-		    @Override
-		    public boolean isSecure() {
-		        return currentSecurityContext.isSecure();
-		    }
-
-		    @Override
-		    public String getAuthenticationScheme() {
-		        return AUTHENTICATION_SCHEME;
-		    }
-		});
-		
+	public void filter(ContainerRequestContext requestContext) throws IOException {		
         // Get the Authorization header from the request
         String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
@@ -72,6 +45,35 @@ public class AuthenticationFilter implements ContainerRequestFilter  {
         } catch (Exception e) {
             abortWithUnauthorized(requestContext);
         }
+        
+		final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
+		requestContext.setSecurityContext(new SecurityContext() {
+
+	        @Override
+	        public Principal getUserPrincipal() {
+	        	User user = UserHelper.getUserByToken(token);
+				return () -> user.getUsername() ;
+	        }
+
+		    @Override
+		    public boolean isUserInRole(String role) {
+		        return true;
+		    }
+
+		    @Override
+		    public boolean isSecure() {
+		        return currentSecurityContext.isSecure();
+		    }
+
+		    @Override
+		    public String getAuthenticationScheme() {
+		        return AUTHENTICATION_SCHEME;
+		    }
+		    
+		    public User getUser() {
+		    	return UserHelper.getUserByToken(token);
+		    }
+		});
 	}
 	
 	private boolean isTokenBasedAuthentication(String authorizationHeader) {

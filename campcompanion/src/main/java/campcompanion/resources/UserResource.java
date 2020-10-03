@@ -27,34 +27,35 @@ import campcompanion.authentication.Role;
 import campcompanion.authentication.Secured;
 import campcompanion.hibernate.HibernateUtils;
 import campcompanion.model.User;
+import campcompanion.model.UserLimited;
 
 @Path("user")
-@Secured({Role.USER})
+@Secured({ Role.USER })
 public class UserResource {
-	
+
 	@Context
 	SecurityContext securityContext;
-	
+
 	/********************************
 	 * 
-	 * 	ALL C R U D OPERATIONS
+	 * ALL C R U D OPERATIONS
 	 * 
 	 ********************************/
-	
+
 	// C stands for C R E A T E !
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response create(String user) {
 		ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
 		Session session = HibernateUtils.getSessionFactory().openSession();
 		Transaction tx = null;
 
 		try {
 			tx = session.beginTransaction();
-			User userAdd = objectMapper.readValue(user , User.class);
+			User userAdd = objectMapper.readValue(user, User.class);
 			userAdd.setRole(Role.USER);
 			session.save(userAdd);
 			tx.commit();
@@ -72,23 +73,24 @@ public class UserResource {
 			session.close();
 		}
 	}
-	
+
 	// R stands for R E A D !
 	@GET
+	@Secured({ Role.ADMIN })
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response read() {
 		ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
 		Session session = HibernateUtils.getSessionFactory().openSession();
 		Transaction tx = null;
 
 		try {
 			tx = session.beginTransaction();
 			@SuppressWarnings("rawtypes")
-			List users = session.createQuery("FROM User").list();
+			List users = session.createQuery("SELECT * FROM User").list();
 			tx.commit();
-			
+
 			String arrayToJson = objectMapper.writeValueAsString(users);
 			return Response.status(200).entity(arrayToJson).build();
 		} catch (HibernateException e) {
@@ -103,14 +105,14 @@ public class UserResource {
 			session.close();
 		}
 	}
-	
-    @GET
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response readOne(@PathParam("id") String id) {
+
+	@GET
+	@Path("{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response readOne(@PathParam("id") String id) {
 		ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
 		Session session = HibernateUtils.getSessionFactory().openSession();
 		Transaction tx = null;
 
@@ -118,8 +120,12 @@ public class UserResource {
 			tx = session.beginTransaction();
 			User user = (User) session.get(User.class, Integer.parseInt(id));
 			tx.commit();
-			if(user != null ) {
-				String objectToJson = objectMapper.writeValueAsString(user);
+			if (user != null) {
+				UserLimited userl = new UserLimited();
+				userl.setId(user.getId());
+				userl.setUsername(user.getUsername());
+				
+				String objectToJson = objectMapper.writeValueAsString(userl);
 				return Response.status(200).entity(objectToJson).build();
 			} else {
 				return Response.status(500).entity("User with id " + id + " doesn't exist.").build();
@@ -135,33 +141,33 @@ public class UserResource {
 		} finally {
 			session.close();
 		}
-    }
-	
+	}
+
 	// U stands for U P D A T E !
-    @PUT
-    @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-	@Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public Response update(@PathParam("id") String id, String userInfo) {
+	@PUT
+	@Path("{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	public Response update(@PathParam("id") String id, String userInfo) {
 		ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
 		Session session = HibernateUtils.getSessionFactory().openSession();
 		Transaction tx = null;
 
 		try {
 			tx = session.beginTransaction();
 			User user = (User) session.get(User.class, Integer.parseInt(id));
-			if(user != null) {
-				User userMod = objectMapper.readValue(userInfo , User.class);
-				
+			if (user != null) {
+				User userMod = objectMapper.readValue(userInfo, User.class);
+
 				user.setUsername(userMod.getUsername());
 				user.setPassword(userMod.getPassword());
 				user.setToken(userMod.getToken());
-				
+
 				session.update(user);
 				tx.commit();
-				
+
 				String objectToJson = objectMapper.writeValueAsString(user);
 				return Response.status(200).entity(objectToJson).build();
 			} else {
@@ -179,13 +185,13 @@ public class UserResource {
 		} finally {
 			session.close();
 		}
-    }
-	
+	}
+
 	// D stands for D E L E T E !
-    @DELETE
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("id") String id) {
+	@DELETE
+	@Path("{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response delete(@PathParam("id") String id) {
 		Session session = HibernateUtils.getSessionFactory().openSession();
 		Transaction tx = null;
 
@@ -194,7 +200,7 @@ public class UserResource {
 			User user = (User) session.get(User.class, Integer.parseInt(id));
 			session.delete(user);
 			tx.commit();
-			
+
 			return Response.ok().entity(id).build();
 		} catch (HibernateException e) {
 			if (tx != null)
@@ -204,6 +210,6 @@ public class UserResource {
 		} finally {
 			session.close();
 		}
-    }
+	}
 
 }
